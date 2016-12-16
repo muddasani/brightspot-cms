@@ -1964,12 +1964,6 @@ public class ToolPageContext extends WebPageContext {
                 writeHtml("window.less.relativeUrls = true;");
             writeEnd();
 
-            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "husl.js"));
-            writeEnd();
-
-            writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "husl-less.js"));
-            writeEnd();
-
             writeStart("script", "type", "text/javascript", "src", cmsResource(scriptPrefix + "less.js"));
             writeEnd();
         }
