@@ -86,7 +86,7 @@ module.exports = function(grunt) {
                     }
                 ],
 
-                'L.GeoSearch': [
+                'leaflet-geosearch': [
                     {
                         cwd: 'src/css',
                         dest: 'leaflet',

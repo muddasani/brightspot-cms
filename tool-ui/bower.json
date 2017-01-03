@@ -15,7 +15,7 @@
     "leaflet": "0.7.3",
     "leaflet.draw": "0.2.3",
     "leaflet.locatecontrol": "0.34.0",
-    "L.GeoSearch": "*",
+    "leaflet-geosearch": "1.1.0",
     "spectrum": "1.3.4",
     "string": "3.3.0",
     "velocity": "1.1.0"
