@@ -44,6 +44,7 @@ import java.util.Map;
 public class ExportContent extends PageServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportContent.class);
+    private static final long THROTTLE_INTERVAL = 500;
 
     public static final String PATH = "exportContent";
 
@@ -91,8 +92,18 @@ public class ExportContent extends PageServlet {
 
         searchQuery.getOptions().put(SqlDatabase.USE_JDBC_FETCH_SIZE_QUERY_OPTION, false);
 
+        int count = 0;
         for (Object item : searchQuery.iterable(0)) {
             page.writeDataRow(item);
+            count++;
+
+            if (count % 10000 == 0) {
+                try {
+                    Thread.sleep(THROTTLE_INTERVAL);
+                } catch (InterruptedException e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
         }
     }
 
