@@ -65,43 +65,53 @@ public class ExportContent extends PageServlet {
     private void execute(Context page) throws IOException, ServletException {
 
         if (page.param(boolean.class, Context.ACTION_PARAMETER)) {
-
-            HttpServletResponse response = page.getResponse();
-
-            response.setContentType("text/csv");
-            response.setHeader("Content-Disposition", "attachment; filename=search-result-" + new DateTime(null, page.getUserDateTimeZone()).toString("yyyy-MM-dd-hh-mm-ss") + ".csv");
-
-            page.writeHeaderRow();
-
-            Query searchQuery = page.getSearch().toQuery(page.getSite());
-
-            if (page.getSelection() != null) {
-                searchQuery.where(page.getSelection().createItemsQuery().getPredicate());
-            }
-
-            for (Object item : searchQuery.iterable(0)) {
-                page.writeDataRow(item);
-            }
-
+            writeCsvResponse(page);
         } else {
-
-            // Only display the button when a search has been refined to a single type
-            if (page.getSearch() != null && page.getSearch().getSelectedType() != null) {
-
-                page.writeStart("div", "class", "searchResult-action-simple");
-                    page.writeStart("a",
-                            "class", "button",
-                            "target", "_top",
-                            "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
-                        page.writeHtml(page.localize(
-                                ExportContent.class,
-                                page.getSelection() != null
-                                        ? "action.exportSelected"
-                                        : "action.exportAll"));
-                    page.writeEnd();
-                page.writeEnd();
-            }
+            writeExportButton(page);
         }
+    }
+
+    private void writeCsvResponse(Context page) throws IOException {
+
+        HttpServletResponse response = page.getResponse();
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=search-result-" + new DateTime(null, page.getUserDateTimeZone()).toString("yyyy-MM-dd-hh-mm-ss") + ".csv");
+
+        page.writeHeaderRow();
+
+        Query searchQuery = page.getSearch().toQuery(page.getSite());
+
+        if (page.getSelection() != null) {
+            searchQuery.where(page.getSelection().createItemsQuery().getPredicate());
+        }
+
+        for (Object item : searchQuery.iterable(0)) {
+            page.writeDataRow(item);
+        }
+    }
+
+    private void writeExportButton(Context page) throws IOException {
+
+        Search search = page.getSearch();
+
+        // Only display the button when a search has been refined to a single type
+        if (search == null || search.getSelectedType() == null) {
+            return;
+        }
+
+        page.writeStart("div", "class", "searchResult-action-simple");
+            page.writeStart("a",
+                    "class", "button",
+                    "target", "_top",
+                    "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
+                page.writeHtml(page.localize(
+                        ExportContent.class,
+                        page.getSelection() != null
+                                ? "action.exportSelected"
+                                : "action.exportAll"));
+            page.writeEnd();
+        page.writeEnd();
     }
 
     /**
