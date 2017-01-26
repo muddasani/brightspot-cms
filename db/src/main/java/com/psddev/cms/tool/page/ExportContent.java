@@ -64,7 +64,9 @@ public class ExportContent extends PageServlet {
 
     private void execute(Context page) throws IOException, ServletException {
 
-        if (page.param(boolean.class, Context.ACTION_PARAMETER)) {
+        if (page.param(boolean.class, Context.WARN_PARAMETER)) {
+            writeExportWarning(page);
+        } else if (page.param(boolean.class, Context.ACTION_PARAMETER)) {
             writeCsvResponse(page);
         } else {
             writeExportButton(page);
@@ -91,6 +93,29 @@ public class ExportContent extends PageServlet {
         }
     }
 
+    private void writeExportWarning(Context page) throws IOException {
+        page.writeStart("div", "class", "message message-warning", "style", "margin-top: 8px");
+            page.writeHtml(page.localize(
+                    ExportContent.class,
+                    "action.exportSizeWarning"
+            ));
+        page.writeEnd();
+
+        page.writeStart("a",
+                "class", "button closeButton",
+                "target", "_top",
+                "onclick", "$(this).closest('.popup').popup('close')",
+                "href", getActionUrl(page, null,
+                        Context.ACTION_PARAMETER, true,
+                        Context.WARN_PARAMETER, false));
+
+            page.writeHtml(page.localize(
+                    ExportContent.class,
+                    "action.exportConfirm"));
+
+        page.writeEnd();
+    }
+
     private void writeExportButton(Context page) throws IOException {
 
         Search search = page.getSearch();
@@ -100,11 +125,21 @@ public class ExportContent extends PageServlet {
             return;
         }
 
+        String target = "_top";
+        String actionUrl = getActionUrl(page, null, Context.ACTION_PARAMETER, true);
+
+        Query searchQuery = search.toQuery(page.getSite());
+
+        if (searchQuery.hasMoreThan(1000)) {
+            target = "export-warning";
+            actionUrl = getActionUrl(page, null, Context.WARN_PARAMETER, true);
+        }
+
         page.writeStart("div", "class", "searchResult-action-simple");
             page.writeStart("a",
                     "class", "button",
-                    "target", "_top",
-                    "href", getActionUrl(page, null, Context.ACTION_PARAMETER, true));
+                    "target", target,
+                    "href", actionUrl);
                 page.writeHtml(page.localize(
                         ExportContent.class,
                         page.getSelection() != null
@@ -134,6 +169,8 @@ public class ExportContent extends PageServlet {
             urlBuilder.currentParameters();
         }
 
+        urlBuilder.parameter(Context.WARN_PARAMETER, null);
+
         // SearchResultSelection uses an ID parameter
         urlBuilder.parameter(Context.SELECTION_ID_PARAMETER, page.getSelection() != null ? page.getSelection().getId() : null);
 
@@ -153,6 +190,7 @@ public class ExportContent extends PageServlet {
         public static final String SELECTION_ID_PARAMETER = "selectionId";
         public static final String SEARCH_PARAMETER = "search";
         public static final String ACTION_PARAMETER = "action-download";
+        public static final String WARN_PARAMETER = "action-warn";
 
         private static final String CSV_LINE_TERMINATOR = "\r\n";
         private static final Character CSV_BOUNDARY = '\"';
