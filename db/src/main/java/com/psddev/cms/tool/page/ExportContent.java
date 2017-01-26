@@ -12,6 +12,7 @@ import com.psddev.dari.db.ObjectField;
 import com.psddev.dari.db.ObjectType;
 import com.psddev.dari.db.Query;
 import com.psddev.dari.db.Recordable;
+import com.psddev.dari.db.SqlDatabase;
 import com.psddev.dari.db.State;
 import com.psddev.dari.util.ClassFinder;
 import com.psddev.dari.util.CollectionUtils;
@@ -87,6 +88,8 @@ public class ExportContent extends PageServlet {
         if (page.getSelection() != null) {
             searchQuery.where(page.getSelection().createItemsQuery().getPredicate());
         }
+
+        searchQuery.getOptions().put(SqlDatabase.USE_JDBC_FETCH_SIZE_QUERY_OPTION, false);
 
         for (Object item : searchQuery.iterable(0)) {
             page.writeDataRow(item);
